@@ -1,0 +1,32 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+#This is the list of vlans to apply. Add to this list for new vlans
+
+  vpc:
+    "vpc101":
+      admin_state: "enabled" #states are enabled or disabled
+      domain_id: 101
+      peer_switch: "enabled"
+      role_priority: 10
+      peer_gateway: "enabled"
+      l3_peer_router: "enabled"
+      auto_recovery: "enabled"
+      auto_recovery_interval: 60
+
+#######################################################################
+##### The below config applies the variables above to the switches#####
+                        #######################
+                        #####DO NOT CHANGE#####
+                        #######################
+#######################################################################
+
+# 2. Reference the common settings using an Alias (*)
+twe-sat01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "twe-sat01"
+  url: "https://192.168.1.166"
+
+twe-sat02:
+  <<: *common                # Same here
+  name: "twe-sat02"
+  url: "https://192.168.1.144"

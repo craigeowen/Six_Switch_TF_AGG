@@ -1,0 +1,44 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+#This is the list of vlans to apply. Add to this list for new vlans
+  vlans:
+    "30":
+      fabric_encap: 30
+      name: "TEST-VLAN-30"
+    "40":
+      fabric_encap: 40
+      name: "TEST-VLAN-40"
+    "50":
+      fabric_encap: 50
+      name: "TEST-VLAN-50"
+    "60":
+      fabric_encap: 60
+      name: "TEST-VLAN-60"
+    "70":
+      fabric_encap: 70
+      name: "TEST-VLAN-70"
+
+  features:
+    "bfd":
+      admin_state: "enabled" #states are enabled or disabled
+    "vpc":
+      admin_state: "enabled" #states are enabled or disabled
+
+
+#######################################################################
+##### The below config applies the variables above to the switches#####
+                        #######################
+                        #####DO NOT CHANGE#####
+                        #######################
+#######################################################################
+
+# 2. Reference the common settings using an Alias (*)
+twe-sat01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "twe-sat01"
+  url: "https://192.168.1.166"
+
+twe-sat02:
+  <<: *common                # Same here
+  name: "twe-sat02"
+  url: "https://192.168.1.144"

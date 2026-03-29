@@ -1,0 +1,19 @@
+vlans:
+  "1100":
+    fabric_encap: 1100
+    name: "TEST-VLAN-1100"
+  "1101":
+    fabric_encap: 1101
+    name: "TEST-VLAN-1101"
+  "3010":
+    fabric_encap: 3010
+    name: "Enterprise Services Prod"
+  "3020":
+    fabric_encap: 3020
+    name: "Enterprise Services S Underlay"
+  "3030":
+    fabric_encap: 3030
+    name: "Enterprise Services PreProd"
+  "3060":
+    fabric_encap: 3060
+    name: "Out of Band Management

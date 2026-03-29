@@ -1,0 +1,138 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+  managed: true
+  username: cisco
+  password: cisco
+  provide_url_sat01: "https://192.168.1.166"
+  provide_url_sat02: "https://192.168.1.144"
+  
+  ##### VRF's#####
+
+  vrfs:
+    "xx01-yy-core":
+      name: "xx01-yy-core"
+      description: "VRF for yy Core"
+    "xx02-yy-core":
+      name: "xx02-yy-core"
+      description: "VRF for yy Core"   
+    "xx03-yy-core":
+      name: "xx03-yy-core"
+      description: "VRF for yy Core" 
+    "xx06-yy-core":
+      name: "xx06-yy-core"
+      description: "VRF for yy Core" 
+    "vpc":
+      name: "vpc"
+      description: "VRF for vpc" 
+  ##### End of VRFs #####
+
+  features:
+#states are enabled or disabled
+    "bfd":
+      admin_state: "enabled" 
+    "bgp":
+      admin_state: "enabled" 
+    "interface_vlan":
+      admin_state: "enabled" 
+    "lacp":
+      admin_state: "enabled"
+    "vpc":
+      admin_state: "enabled" 
+
+
+
+
+# 2. Reference the common settings using an Alias (*)
+twe-sat01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "twe-sat01"
+  url: "https://192.168.1.166"
+
+twe-sat02:
+  <<: *common                # Same here
+  name: "twe-sat02"
+  url: "https://192.168.1.144"
+
+# 3. You can also override specific values
+# twe-sat03:
+#   <<: *common
+#   name: "twe-sat03"
+#   url: "https://192.168.1.155"
+#   vrf2_name: "SPECIAL_VRF"   # This overrides the common "VRF2" value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# twe-sat01:
+#   name: "twe-sat01"
+#   url: "https://192.168.1.166"
+#   vrf2_name: "VRF2"
+#   vrf2_description: "My VRF2 Description"
+    
+# twe-sat02:
+#   name: "twe-sat02"
+#   url: "https://192.168.1.144"
+#   vrf2_name: "VRF2"
+#   vrf2_description: "My VRF2 Description"
+

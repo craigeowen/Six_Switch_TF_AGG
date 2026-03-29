@@ -1,0 +1,50 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+  managed: true
+  username: cisco
+  password: cisco
+  provide_url_sat01: "https://192.168.1.166"
+  provide_url_sat02: "https://192.168.1.144"
+
+
+#This is the list of L2 Eth Interfaces to apply. Add to this list for new interfaces
+
+  l2_eth_interface:
+    "eth1/2":
+      interface_id: "eth1/2"
+      admin_state: "up"
+      mode: "trunk"
+      trunk_vlans:  "10, 20, 30, 40, 50, 60" # This is trunking selected vlans
+      description: "eth1/2 L2 Eth Interface"
+      layer: "Layer2"
+      #mtu: 9216
+    "eth1/3":
+      interface_id: "eth1/3"
+      admin_state: "up"
+      mode: "trunk"
+      trunk_vlans:  "1 - 4094" # This is trunking all vlans
+      description: "eth1/3 L2 Eth Interface"
+      layer: Layer2
+      #mtu: 9216
+
+
+
+
+      
+#######################################################################
+##### The below config applies the variables above to the switches#####
+                        #######################
+                        #####DO NOT CHANGE#####
+                        #######################
+#######################################################################
+
+# 2. Reference the common settings using an Alias (*)
+twe-sat01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "twe-sat01"
+  url: "https://192.168.1.166"
+
+twe-sat02:
+  <<: *common                # Same here
+  name: "twe-sat02"
+  url: "https://192.168.1.144"
