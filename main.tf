@@ -10,16 +10,16 @@ terraform {
 locals {
   leafs = [
     {
-      name = "twe-sat01"
-      url  = "https://192.168.1.166"
+      name = "twe-agg01"
+      url  = "https://192.168.1.87"
       number = 1
-      alias = "twe-sat01"
+      alias = "twe-agg01"
     },
     {
-      name = "twe-sat02"
-      url  = "https://192.168.1.144"
+      name = "twe-agg02"
+      url  = "https://192.168.1.190"
       number = 2
-      alias = "twe-sat02"
+      alias = "twe-agg02"
     },
     
   ]
@@ -241,7 +241,10 @@ module "config-VPC" {
    source = "./modules/ipv4address"
  }
 
-
+ ### BGP
+ module "config-bgp" {
+   source = "./modules/routing"
+ }
 
 ####################################################
 

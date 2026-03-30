@@ -10,13 +10,13 @@ terraform {
 locals {
   leafs = [
     {
-      name = "twe-sat01"
-      url  = "https://192.168.1.166"
+      name = "twe-agg01"
+      url  = "https://192.168.1.87"
 
     },
     {
-      name = "twe-sat02"
-      url  = "https://192.168.1.144"
+      name = "twe-agg02"
+      url  = "https://192.168.1.190"
 
     },
   ]
@@ -94,23 +94,23 @@ provider "nxos" {
 }
 
 provider "nxos" {
-  alias = "twe-sat01"
+  alias = "twe-agg01"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.166"
+  url      = "https://192.168.1.87"
 }
 provider "nxos" {
-  alias = "twe-sat02"
+  alias = "twe-agg02"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.144"
+  url      = "https://192.168.1.190"
 
 }
 
 ##### IPV4 Interface Addresses #####
 
-resource "nxos_ipv4" "sat01" {
-  provider = nxos.twe-sat01  
+resource "nxos_ipv4" "agg01" {
+  provider = nxos.twe-agg01  
   # admin_state                             = "enabled"
   # instance_admin_state                    = "enabled"
   # access_list_match_local                 = "enabled"
@@ -132,13 +132,13 @@ resource "nxos_ipv4" "sat01" {
     #   auto_discard                 = "enabled"
     #   icmp_errors_source_interface = "unspecified"
        static_routes = {
-         "${local.loopback_octet}.6/32" = {
+         "${local.loopback_octet}.4/32" = {
     #       control     = "bfd"
-           description = "SR_TO_SAT02_LOOPBACK"
+           description = "SR_TO_agg02_LOOPBACK"
     #       preference  = 2
     #       tag         = 10
            next_hops = {
-             "po2.3010;${local.xx01-xx-core_octet}.21;xx01-xx-core" = {
+             "po2.3010;${local.xx01-xx-core_octet}.11;xx01-xx-core" = {
     #           description           = "My Description"
     #           object                = 10
     #           preference            = 123
@@ -153,7 +153,7 @@ resource "nxos_ipv4" "sat01" {
         "lo101" = {
 
           addresses = {
-            "${local.loopback_octet}.5/32" = {
+            "${local.loopback_octet}.3/32" = {
 
             }
           }
@@ -161,7 +161,7 @@ resource "nxos_ipv4" "sat01" {
         "po2.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.20/31" = {
+            "${local.xx01-xx-core_octet}.10/31" = {
 
             }
           }
@@ -169,35 +169,20 @@ resource "nxos_ipv4" "sat01" {
         "po11.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.13/31" = {
+            "${local.xx01-xx-core_octet}.12/31" = {
 
             }
           }
         }
-        "po21.3010" = {
+        "po12.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.17/31" = {
+            "${local.xx01-xx-core_octet}.14/31" = {
 
             }
           }
         }
-        "vlan650" = {
-
-          addresses = {
-            "${local.prod_xx_octet}.30/27" = {
-
-            }
-          }
-        }
-        "vlan651" = {
-
-          addresses = {
-            "${local.prod_xx_octet}.62/27" = {
-
-            }
-          }  
-        }
+        
       }
     }
   }
@@ -205,8 +190,8 @@ resource "nxos_ipv4" "sat01" {
 
 
 
-resource "nxos_ipv4" "sat02" {
-  provider = nxos.twe-sat02 
+resource "nxos_ipv4" "agg02" {
+  provider = nxos.twe-agg02 
   # admin_state                             = "enabled"
   # instance_admin_state                    = "enabled"
   # access_list_match_local                 = "enabled"
@@ -228,13 +213,13 @@ resource "nxos_ipv4" "sat02" {
     #   auto_discard                 = "enabled"
     #   icmp_errors_source_interface = "unspecified"
        static_routes = {
-         "${local.loopback_octet}.5/32" = {
+         "${local.loopback_octet}.3/32" = {
     #       control     = "bfd"
-           description = "SR_TO_SAT01_LOOPBACK"
+           description = "SR_TO_agg01_LOOPBACK"
     #       preference  = 2
     #       tag         = 10
            next_hops = {
-             "po2.3010;${local.xx01-xx-core_octet}.20;xx01-xx-core" = {
+             "po2.3010;${local.xx01-xx-core_octet}.10;xx01-xx-core" = {
     #           description           = "My Description"
     #           object                = 10
     #           preference            = 123
@@ -249,7 +234,7 @@ resource "nxos_ipv4" "sat02" {
         "lo101" = {
 
           addresses = {
-            "${local.loopback_octet}.6/32" = {
+            "${local.loopback_octet}.4/32" = {
 
             }
           }
@@ -257,15 +242,15 @@ resource "nxos_ipv4" "sat02" {
         "po2.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.21/31" = {
+            "${local.xx01-xx-core_octet}.11/31" = {
 
             }
           }
         }
-        "po12.3010" = {
+        "po21.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.15/31" = {
+            "${local.xx01-xx-core_octet}.16/31" = {
 
             }
           }
@@ -273,27 +258,12 @@ resource "nxos_ipv4" "sat02" {
         "po22.3010" = {
 
           addresses = {
-            "${local.xx01-xx-core_octet}.19/31" = {
+            "${local.xx01-xx-core_octet}.18/31" = {
 
             }
           }
         }
-        "vlan650" = {
-
-          addresses = {
-            "${local.prod_xx_octet}.29/27" = {
-
-            }
-          }
-        }
-        "vlan651" = {
-
-          addresses = {
-            "${local.prod_xx_octet}.61/27" = {
-
-            }
-          }  
-        }
+        
       }
     }
   }

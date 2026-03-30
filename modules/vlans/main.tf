@@ -10,16 +10,16 @@ terraform {
 locals {
   leafs = [
     {
-      name = "twe-sat01"
-      url  = "https://192.168.1.166"
+      name = "twe-agg01"
+      url  = "https://192.168.1.87"
       number = 1
-      alias = "twe-sat01"
+      alias = "twe-agg01"
     },
     {
-      name = "twe-sat02"
-      url  = "https://192.168.1.144"
+      name = "twe-agg02"
+      url  = "https://192.168.1.190"
       number = 2
-      alias = "twe-sat02"
+      alias = "twe-agg02"
     },
   ]
   raw_yaml = yamldecode(file("${path.root}/common.yaml"))
@@ -89,12 +89,7 @@ resource "nxos_bridge_domain" "bd-vlan3010" {
     "vlan-3060" = {
       name                = "vlan-3060"
     }
-    "vlan-650" = {
-      name                = "vlan-650"
-    }
-    "vlan-651" = {
-      name                = "vlan-651"
-    }
+  
 
   }
 }

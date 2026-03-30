@@ -10,18 +10,20 @@ terraform {
 locals {
   leafs = [
     {
-      name = "twe-sat01"
-      url  = "https://192.168.1.166"
+      name = "twe-agg01"
+      url  = "https://192.168.1.87"
 
     },
     {
-      name = "twe-sat02"
-      url  = "https://192.168.1.144"
+      name = "twe-agg02"
+      url  = "https://192.168.1.190"
 
     },
     
   ]
   raw_yaml = yamldecode(file("${path.root}/Eth_Int.yaml"))
+
+  interface_yaml = yamldecode(file("${path.root}/interface.yaml"))
 
   # Filter in the 'common_settings' block 
   # so Terraform uses only the common settings (vlans)
@@ -91,31 +93,31 @@ provider "nxos" {
 }
 
 provider "nxos" {
-  alias = "twe-sat01"
+  alias = "twe-agg01"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.166"
+  url      = "https://192.168.1.87"
 }
 provider "nxos" {
-  alias = "twe-sat02"
+  alias = "twe-agg02"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.144"
+  url      = "https://192.168.1.190"
 }
 
 
 ##### Physical Interfaces #####
 
 ### Required to bring up PO1 physical interfaces as they are part of the vPC keepalive configuration. The port-channel interface will not come up without the physical interface being up and in the correct state. This is a workaround to ensure the PO4 interfaces come up and we can then remove this code and manage the physical interfaces in a seperate module if desired.
-resource "nxos_physical_interface" "eth1_5_6" {
+resource "nxos_physical_interface" "eth1_7_8" {
   for_each = local.device_data
   device = each.key 
   physical_interfaces = {
-        "eth1/5" = {
+        "eth1/7"= {
         admin_state                        = "up"
         description                        = "PO1_Member"
         }
-        "eth1/6" = {
+        "eth1/8"= {
         admin_state                        = "up"
         description                        = "PO1_Member"
         }
@@ -123,15 +125,15 @@ resource "nxos_physical_interface" "eth1_5_6" {
 }
 
 ### Required to bring up PO2 physical interfaces as they are part of the vPC keepalive configuration. The port-channel interface will not come up without the physical interface being up and in the correct state. This is a workaround to ensure the PO4 interfaces come up and we can then remove this code and manage the physical interfaces in a seperate module if desired.
-resource "nxos_physical_interface" "eth1_9_11" {
+resource "nxos_physical_interface" "eth1_10_12" {
   for_each = local.device_data
   device = each.key
   physical_interfaces = {
-    "eth1/9" = {
+    "eth1/10" = {
       admin_state                        = "up"
       description                        = "PO2_Member"
     }
-    "eth1/11" = {
+    "eth1/12" = {
       admin_state                        = "up"
       description                        = "PO2_Member"
     }
@@ -139,11 +141,11 @@ resource "nxos_physical_interface" "eth1_9_11" {
 }
 
 ### Required to bring up PO4 physical interfaces as they are part of the vPC keepalive configuration. The port-channel interface will not come up without the physical interface being up and in the correct state. This is a workaround to ensure the PO4 interfaces come up and we can then remove this code and manage the physical interfaces in a seperate module if desired.
-resource "nxos_physical_interface" "eth1_4" {
+resource "nxos_physical_interface" "eth1_6" {
   for_each = local.device_data
   device = each.key 
   physical_interfaces = {
-        "eth1/4" = {
+        "eth1/6" = {
         admin_state                        = "up"
         description                        = "PO4_Member"
         }
@@ -172,116 +174,10 @@ resource "nxos_physical_interface" "eth1_4" {
 
 ##### Port-Channel Interfaces #####
 
-resource "nxos_port_channel_interface" "po" {
-  provider = nxos.twe-sat01
-  #for_each = local.device_data
-  #device = each.key 
-  port_channel_interfaces = {
-    "po101" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Proxy 1 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "651"
-      members = {
-        "sys/intf/phys-[eth1/21]" = {
-          force = true
-        }
-      }
-    }
-    "po102" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Proxy 2 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "651"
-      members = {
-        "sys/intf/phys-[eth1/22]" = {
-          force = true
-        }
-      }
-    }
-     "po103" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Outside 1 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "650"
-      members = {
-        "sys/intf/phys-[eth1/25]" = {
-          force = true
-        }
 
-      }
-    }
-    "po104" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Outside 2 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "650"
-      members = {
-        "sys/intf/phys-[eth1/26]" = {
-          force = true
-        }
-        
-      }
-    }
-     "po105" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Inside 1 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "651"
-      members = {
-        "sys/intf/phys-[eth1/29]" = {
-          force = true
-        }
 
-      }
-    }
-    "po106" = {
-      port_channel_mode      = "active"
-      minimum_links          = 1
-      suspend_individual     = "disable"
-      admin_state            = "up"
-      description            = "### TWE SAT to PROD HRB Inside 2 ###"
-      layer                  = "Layer2"
-      mode                   = "access"
-      mtu                    = 1500
-      trunk_vlans            = "651"
-      members = {
-        "sys/intf/phys-[eth1/30]" = {
-          force = true
-        }
-
-      }
-    }
-  }
-}
-
-resource "nxos_port_channel_interface" "po-sat01" {
-  provider = nxos.twe-sat01
+resource "nxos_port_channel_interface" "po-agg01" {
+  provider = nxos.twe-agg01
   #for_each = local.device_data
   #device = each.key 
   port_channel_interfaces = {
@@ -296,10 +192,10 @@ resource "nxos_port_channel_interface" "po-sat01" {
       mtu                    = 1500
       trunk_vlans            = "1-4094"
       members = {
-        "sys/intf/phys-[eth1/5]" = {
+        "sys/intf/phys-[eth1/7]" = {
           force = true
         }
-        "sys/intf/phys-[eth1/6]" = {
+        "sys/intf/phys-[eth1/8]" = {
           force = true
         }
       }
@@ -312,10 +208,10 @@ resource "nxos_port_channel_interface" "po-sat01" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/9]" = {
+        "sys/intf/phys-[eth1/10]" = {
           force = true
         }
-        "sys/intf/phys-[eth1/11]" = {
+        "sys/intf/phys-[eth1/12]" = {
           force = true
         }
       }
@@ -329,7 +225,7 @@ resource "nxos_port_channel_interface" "po-sat01" {
       mtu                    = 9216
       vrf_dn       = "sys/inst-vpc"
       members = {
-        "sys/intf/phys-[eth1/4]" = {
+        "sys/intf/phys-[eth1/6]" = {
           force = true
         }
 
@@ -343,13 +239,13 @@ resource "nxos_port_channel_interface" "po-sat01" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/7]" = {
+        "sys/intf/phys-[eth1/1]" = {
           force = true
         }
         
       }
     }
-     "po21" = {
+     "po12" = {
       port_channel_mode      = "active"
       minimum_links          = 1
       admin_state            = "up"
@@ -357,7 +253,7 @@ resource "nxos_port_channel_interface" "po-sat01" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/8]" = {
+        "sys/intf/phys-[eth1/2]" = {
           force = true
         }
 
@@ -366,8 +262,8 @@ resource "nxos_port_channel_interface" "po-sat01" {
   }
 }
 
-resource "nxos_port_channel_interface" "po-sat02" {
-  provider = nxos.twe-sat02
+resource "nxos_port_channel_interface" "po-agg02" {
+  provider = nxos.twe-agg02
   #for_each = local.device_data
   #device = each.key 
   port_channel_interfaces = {
@@ -382,10 +278,10 @@ resource "nxos_port_channel_interface" "po-sat02" {
       mtu                    = 1500
       trunk_vlans            = "1-4094"
       members = {
-        "sys/intf/phys-[eth1/5]" = {
+        "sys/intf/phys-[eth1/7]" = {
           force = true
         }
-        "sys/intf/phys-[eth1/6]" = {
+        "sys/intf/phys-[eth1/8]" = {
           force = true
         }
       }
@@ -398,10 +294,10 @@ resource "nxos_port_channel_interface" "po-sat02" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/9]" = {
+        "sys/intf/phys-[eth1/10]" = {
           force = true
         }
-        "sys/intf/phys-[eth1/11]" = {
+        "sys/intf/phys-[eth1/12]" = {
           force = true
         }
       }
@@ -415,13 +311,13 @@ resource "nxos_port_channel_interface" "po-sat02" {
       mtu                    = 9216
       vrf_dn       = "sys/inst-vpc"
       members = {
-        "sys/intf/phys-[eth1/4]" = {
+        "sys/intf/phys-[eth1/6]" = {
           force = true
         }
 
       }
     }
-    "po12" = {
+    "po21" = {
       port_channel_mode      = "active"
       minimum_links          = 1
       admin_state            = "up"
@@ -429,7 +325,7 @@ resource "nxos_port_channel_interface" "po-sat02" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/7]" = {
+        "sys/intf/phys-[eth1/1]" = {
           force = true
         }
         
@@ -443,7 +339,7 @@ resource "nxos_port_channel_interface" "po-sat02" {
       layer                  = "Layer3"
       mtu                    = 9216
       members = {
-        "sys/intf/phys-[eth1/8]" = {
+        "sys/intf/phys-[eth1/2]" = {
           force = true
         }
 
@@ -475,7 +371,7 @@ resource "nxos_loopback_interface" "lo101" {
 ##### Sub Interfaces #####
 
 resource "nxos_subinterface" "subint-sag01" {
-    provider = nxos.twe-sat01
+    provider = nxos.twe-agg01
     subinterfaces = {
     "po2.3010" = {
       admin_state  = "up"
@@ -491,7 +387,7 @@ resource "nxos_subinterface" "subint-sag01" {
       encap        = "vlan-3010"
       vrf_dn       = "sys/inst-xx01-xx-core"
     }
-    "po21.3010" = {
+    "po12.3010" = {
       admin_state  = "up"
       description  = "### XX-01 AGG to AGG iBGP ###"
       mtu          = 9216
@@ -502,7 +398,7 @@ resource "nxos_subinterface" "subint-sag01" {
 }
 
 resource "nxos_subinterface" "subint-sag02" {
-    provider = nxos.twe-sat02
+    provider = nxos.twe-agg02
     subinterfaces = {
     "po2.3010" = {
       admin_state  = "up"
@@ -511,7 +407,7 @@ resource "nxos_subinterface" "subint-sag02" {
       encap        = "vlan-3010"
       vrf_dn       = "sys/inst-xx01-xx-core"
     }
-    "po12.3010" = {
+    "po21.3010" = {
       admin_state  = "up"
       description  = "### XX-01 AGG to AGG iBGP ###"
       mtu          = 9216
@@ -532,24 +428,24 @@ resource "nxos_subinterface" "subint-sag02" {
 
 ##### SVI Interfaces ##### 
 
-resource "nxos_svi_interface" "example" {
-  for_each = local.device_data
-  device = each.key 
-  svi_interfaces = {
-    "vlan650" = {
-      admin_state             = "up"
-      description            = "### XX-01_XXX_PROD_XX_OUTSIDE ###"
-      mtu                     = 9216
-      vrf_dn                  = "sys/inst-xx01-xx-core"
-    }
-    "vlan651" = {
-      admin_state             = "up"
-      description            = "### XX-01_XXX_PROD_XX_INSIDE ###"
-      mtu                     = 9216
-      vrf_dn                  = "sys/inst-xx01-xx-core"
-    }
-  }
-}
+#resource "nxos_svi_interface" "example" {
+#   for_each = local.device_data
+#   device = each.key 
+#   svi_interfaces = {
+#     "vlan650" = {
+#       admin_state             = "up"
+#       description            = "### XX-01_XXX_PROD_XX_OUTSIDE ###"
+#       mtu                     = 9216
+#       vrf_dn                  = "sys/inst-xx01-xx-core"
+#     }
+#     "vlan651" = {
+#       admin_state             = "up"
+#       description            = "### XX-01_XXX_PROD_XX_INSIDE ###"
+#       mtu                     = 9216
+#       vrf_dn                  = "sys/inst-xx01-xx-core"
+#     }
+#   }
+# }
 
 
 ##### End of SVI Interfaces #####

@@ -1,0 +1,19 @@
+  eth_interface:
+    "eth1/30":
+      interface_id: "eth1/30"
+      admin_state: "up"
+      #mode: "trunk"
+      #trunk_vlans:  "10, 20, 30, 40, 50, 60" # This is trunking selected vlans
+      description: "eth1/30 Eth Interface"
+      #layer: "Layer2"
+      #mtu: 9216
+    "eth1/31":
+      interface_id: "eth1/31"
+      admin_state: "up"
+      #mode: "trunk"
+      #trunk_vlans:  "1 - 4094" # This is trunking all vlans
+      description: "eth1/3 Eth Interface"
+     # layer: Layer2
+      #mtu: 9216
+
+  

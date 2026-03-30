@@ -10,16 +10,16 @@ terraform {
 locals {
   leafs = [
     {
-      name = "twe-sat01"
-      url  = "https://192.168.1.166"
+      name = "twe-agg01"
+      url  = "https://192.168.1.87"
       number = 1
-      alias = "twe-sat01"
+      alias = "twe-agg01"
     },
     {
-      name = "twe-sat02"
-      url  = "https://192.168.1.144"
+      name = "twe-agg02"
+      url  = "https://192.168.1.190"
       number = 2
-      alias = "twe-sat02"
+      alias = "twe-agg02"
     },
   ]
   vpc_raw_yaml = yamldecode(file("${path.root}/vpc.yaml"))
@@ -58,22 +58,22 @@ provider "nxos" {
 
 
 provider "nxos" {
-  alias = "twe-sat01"
+  alias = "twe-agg01"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.166"
+  url      = "https://192.168.1.87"
 }
 provider "nxos" {
-  alias = "twe-sat02"
+  alias = "twe-agg02"
   username = "cisco"
   password = "cisco"
-  url      = "https://192.168.1.144"
+  url      = "https://192.168.1.190"
 
 }
 
 ##### Create VPC #####
-resource "nxos_vpc" "vpc-sat01" {
-  provider = nxos.twe-sat01
+resource "nxos_vpc" "vpc-agg01" {
+  provider = nxos.twe-agg01
   domain_id = 101
   peer_switch = "enabled"
   role_priority = 10
@@ -89,8 +89,8 @@ resource "nxos_vpc" "vpc-sat01" {
   
 }
 
-resource "nxos_vpc" "vpc-sat02" {
-  provider = nxos.twe-sat02
+resource "nxos_vpc" "vpc-agg02" {
+  provider = nxos.twe-agg02
   domain_id = 101
   peer_switch = "enabled"
   role_priority = 10

@@ -3,8 +3,8 @@ common_settings: &common
   managed: true
   username: cisco
   password: cisco
-  provide_url_sat01: "https://192.168.1.166"
-  provide_url_sat02: "https://192.168.1.144"
+  provide_url_agg01: "https://192.168.1.87"
+  provide_url_agg02: "https://192.168.1.190"
 
 
 #This is the list of L2 Eth Interfaces to apply. Add to this list for new interfaces
@@ -39,12 +39,12 @@ common_settings: &common
 #######################################################################
 
 # 2. Reference the common settings using an Alias (*)
-twe-sat01:
+twe-agg01:
   <<: *common                # This "pulls in" everything from common_settings
-  name: "twe-sat01"
-  url: "https://192.168.1.166"
+  name: "twe-agg01"
+  url: "https://192.168.1.87"
 
-twe-sat02:
+twe-agg02:
   <<: *common                # Same here
-  name: "twe-sat02"
-  url: "https://192.168.1.144"
+  name: "twe-agg02"
+  url: "https://192.168.1.190"
