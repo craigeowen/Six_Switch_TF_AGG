@@ -40,7 +40,15 @@ common_settings: &common
     
   # Define the Features setting
  
-
+  ntp:
+    "1.2.3.4":
+      vrf: management
+      type: server
+      #prefered: true
+    "4.3.2.1":
+      vrf: management
+      type: server
+      #prefered: false
 
 # 2. Reference the common settings using an Alias (*)
 twe-agg01:

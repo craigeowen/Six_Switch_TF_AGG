@@ -1,0 +1,43 @@
+# # 1. Define the common settings using an Anchor (&)
+# common_settings: &common
+# #This is the list of vlans to apply. Add to this list for new vlans
+#   vlans:
+#     "1100":
+#       fabric_encap: 1100
+#       name: "vlan-1100"
+#     "1101":
+#       fabric_encap: 1101
+#       name: "vlan-1101"
+#     "3010":
+#       fabric_encap: 3010
+#       name: "vlan-3010"
+#     "3020":
+#       fabric_encap: 3020
+#       name: "vlan-3020"
+#     "3030":
+#       fabric_encap: 3030
+#       name: "vlan-3030"
+#     "3060":
+#       fabric_encap: 3060
+#       name: "vlan-3060"
+
+
+
+
+# #######################################################################
+# ##### The below config applies the variables above to the switches#####
+#                         #######################
+#                         #####DO NOT CHANGE#####
+#                         #######################
+# #######################################################################
+
+# # 2. Reference the common settings using an Alias (*)
+# twe-agg01:
+#   <<: *common                # This "pulls in" everything from common_settings
+#   name: "twe-agg01"
+#   url: "https://192.168.1.87"
+
+# twe-agg02:
+#   <<: *common                # Same here
+#   name: "twe-agg02"
+#   url: "https://192.168.1.190"

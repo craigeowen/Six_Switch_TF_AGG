@@ -20,6 +20,21 @@ common_settings: &common
     "3060":
       fabric_encap: 3060
       name: "vlan-3060"
+    "650":
+      fabric_encap: 650
+      name: "vlan-650"
+
+  vpc:
+    domain_id:":
+    admin_state: "enabled" 
+    domain_id: 101
+    peer_switch: "enabled"
+    role_priority: 10
+    peer_gateway: "enabled"
+    l3_peer_router: "enabled"
+    auto_recovery: "enabled"
+    auto_recovery_interval: 60
+    peerlink_interface_id: "po1"  
 
 
 
@@ -36,8 +51,12 @@ twe-agg01:
   <<: *common                # This "pulls in" everything from common_settings
   name: "twe-agg01"
   url: "https://192.168.1.87"
+  keepalive_destination_ip : "1.1.1.1"
+  keepalive_source_ip      : "1.1.1.2"
 
 twe-agg02:
   <<: *common                # Same here
   name: "twe-agg02"
   url: "https://192.168.1.190"
+  keepalive_destination_ip : "1.1.1.2"
+  keepalive_source_ip      : "1.1.1.1"

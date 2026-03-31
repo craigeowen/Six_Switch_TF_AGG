@@ -41,6 +41,23 @@ locals {
     }
   }
   
+  #3. Flattening Logic:
+  # Since 'for_each' can only loop over a single-level map, we must 
+  # transform the nested structure (Switch -> ntp) into a flat map.
+  device_ntp = merge([
+    for device_key, device_val in local.device_list : {
+    # Iterate over the 'ntp' map inherited by each switch via the YAML alias (*)    
+      for ntp_id, ntp_val in device_val.ntp :
+      # Generate a unique key for every port on every switch (e.g., "twe-agg01.130")
+      "${device_key}.${ntp_id}" => {
+        device_name  = device_key
+        ntp_id      = ntp_id
+        vrf         = ntp_val.vrf
+        #prefered    = ntp_val.prefered
+      }
+    }
+  ]...) # The '...' expansion operator merges the list of maps into one single map
+
 }
  
 provider "nxos" {
@@ -55,6 +72,7 @@ provider "nxos" {
   ]
 }
 
+##### nxos_feature #####
 # Dynamic resource creation for switch features
 resource "nxos_feature" "dynamic_features" {
   # This now loops twice (once per switch)
@@ -75,8 +93,21 @@ resource "nxos_feature" "dynamic_features" {
   vpc            = "${each.value.vpc}"
   } 
 
-output "check_my_path" {
-  value = abspath("${path.module}/../yaml_configs/system.yaml")
+##### NTP #####
+# Dynamic resource creation for switch ntp
+resource "nxos_ntp" "example" {
+  for_each = local.device_ntp
+  device = each.value.device_name
+  servers = {
+    "${each.value.ntp_id}" = {
+      vrf       = "management"
+      type      = "server"
+    }
+  # "4.3.2.1" = {
+  #   vrf       = "management"
+  #   type      = "server"
+  #   }
+  }
 }
 
 ##### TLDR #####

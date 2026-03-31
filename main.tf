@@ -170,10 +170,10 @@ resource "nxos_save_config" "save-config" {
 # }
 
 ### Vlans
-module "config-common-vlans" {
-  source = "./modules/vlans"
-  #common_vlan = local.device_vlans
-}
+#module "config-common-vlans" {
+#  source = "./modules/vlans"
+#  #common_vlan = local.device_vlans
+#}
 
 # ### Eth Int
 # module "config-Eth-Ints" {
@@ -181,9 +181,9 @@ module "config-common-vlans" {
 # }
 
 ### VPC
-module "config-VPC" {
-  source = "./modules/vpc"
-}
+#module "config-VPC" {
+#  source = "./modules/vpc"
+#}
 
  ### Eth Int
  module "config-interfaces" {
@@ -200,11 +200,17 @@ module "config-BGP" {
   source = "./modules/routing"
 }
 
+### Switching
+module "config-Switching" {
+  source = "./modules/switching"
+}
+
+
 ### system
 module "config-system" {
   source = "./modules/system"
   # Read the file here, where the path is simple and clear
-  system_config = yamldecode(file("${path.root}/modules/yaml_configs/system.yaml"))
+  #system_config = yamldecode(file("${path.root}/modules/yaml_configs/system.yaml"))
 }
 
 ####################################################

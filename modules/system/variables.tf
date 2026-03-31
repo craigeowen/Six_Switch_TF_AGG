@@ -1,3 +1,3 @@
-variable "system_config" {
-  type = any
-}
+# variable "system_config" {
+#   type = any
+# }
