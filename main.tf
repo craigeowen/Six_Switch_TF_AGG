@@ -40,18 +40,7 @@ locals {
     if k == "common_settings" 
   }
 
-# 2. Flatten: Create a map entry for every FEATURE on every device
-  device_features = merge([
-    for device_key, device_val in local.device_data: {
-      for feature_id, feature_val in local.raw_yaml.common_settings.features :
-      "${device_key}.${feature_id}" => {
-        device       = device_key
-        feature_id   = feature_id
-        admin_state  = feature_val.admin_state
-
-      }
-    }
-  ]...) # The '...' is important to merge the list of maps into one map
+#
 
   # 3. Flatten: Create a map entry for every VRF on every device
   device_vrfs = merge([
@@ -68,11 +57,7 @@ locals {
 ###### Extract the commn.yaml data into a separate local variable for easier reference in the module
   #raw_vlans_yaml = yamldecode(file("./vlans.yaml")) 
 
-
 }
-
-
-
 
 # Parses a YAML file into a Terraform-compatible map or object structure.
   # 'file' reads the raw text from the disk.
@@ -95,7 +80,7 @@ resource "nxos_system" "hostname" {
   # Iterates over a collection of devices defined in local.cfg.devices
   # This allows you to manage multiple switches from a single resource block
   device = each.key
-  name   = each.value.name
+  name   = "XX-SPR-2B-${each.value.name}"
   # Sets the hostname ('name') based on the 'name' attribute of the current device in the loop
 }
 ##### Each block is composed of
@@ -161,43 +146,6 @@ resource "nxos_dme" "l3Inst-vpc" {
 
 ##### End of VRF Config
 
-##### Feature Config
-
-resource "nxos_feature" "example" {
-  for_each = local.device_features
-  device = each.value.device
-  #name        = "${each.value.name}"
- # bash_shell     = "${each.value.admin_state}"
-  bfd            = "${each.value.admin_state}"
-  bgp            = "${each.value.admin_state}"
-  #dhcp           = "${each.value.admin_state}"
-  #evpn           = "${each.value.admin_state}"
-  #hmm            = "${each.value.admin_state}"
-  #hsrp           = "${each.value.admin_state}"
-  interface_vlan = "${each.value.admin_state}"
-  #isis           = "${each.value.admin_state}"
-  lacp           = "${each.value.admin_state}"
-  #lldp           = "${each.value.admin_state}"
-  #macsec         = "${each.value.admin_state}"
-  #netflow        = "${each.value.admin_state}"
-  #ngmvpn         = "${each.value.admin_state}"
-  #ngoam          = "${each.value.admin_state}"
-  #nv_overlay     = "${each.value.admin_state}"
-  #ospf           = "${each.value.admin_state}"
-  #ospfv3         = "${each.value.admin_state}"
-  #pim            = "${each.value.admin_state}"
-  #ptp            = "${each.value.admin_state}"
-  #pvlan          = "${each.value.admin_state}"
-  #sflow          = "${each.value.admin_state}"
-  #ssh            = "${each.value.admin_state}"
-  #tacacs         = "${each.value.admin_state}"
-  #telnet         = "${each.value.admin_state}"
-  #udld           = "${each.value.admin_state}"
-  #vn_segment     = "${each.value.admin_state}"
-  vpc            = "${each.value.admin_state}"
-}
-
-##### End of Features Config
 
 ##### This is usewd for returned OUTPUT from Modules #####
 
@@ -213,6 +161,13 @@ resource "nxos_save_config" "save-config" {
 
 
 ##### Configure  modules #####
+
+### Base
+module "config-base" {
+  source = "./modules/base"
+  #device_features = local.device_features
+  #device_vrfs = local.device_vrfs
+}
 
 ### Vlans
 module "config-common-vlans" {
@@ -230,7 +185,6 @@ module "config-VPC" {
   source = "./modules/vpc"
 }
 
-
  ### Eth Int
  module "config-interfaces" {
    source = "./modules/interfaces"
@@ -241,10 +195,10 @@ module "config-VPC" {
    source = "./modules/ipv4address"
  }
 
- ### BGP
- module "config-bgp" {
-   source = "./modules/routing"
- }
+### BGP
+module "config-BGP" {
+  source = "./modules/routing"
+}
 
 ####################################################
 

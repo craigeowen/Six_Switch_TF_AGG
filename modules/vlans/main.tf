@@ -1,99 +1,80 @@
+# Configure the required provider for Cisco NX-OS
 terraform {
   required_providers {
     nxos = {
       source  = "CiscoDevNet/nxos"
-      version = ">= 0.8.0" # example, pin what you actually use
+      version = ">= 0.8.0"
     }
   }
 }
 
 locals {
-  leafs = [
-    {
-      name = "twe-agg01"
-      url  = "https://192.168.1.87"
-      number = 1
-      alias = "twe-agg01"
-    },
-    {
-      name = "twe-agg02"
-      url  = "https://192.168.1.190"
-      number = 2
-      alias = "twe-agg02"
-    },
-  ]
-  raw_yaml = yamldecode(file("${path.root}/common.yaml"))
+  # Load and parse the YAML file from the root directory
+  raw_yaml = yamldecode(file("${path.root}/vlans.yaml"))
 
-  # Filter in the 'common_settings' block 
-  # so Terraform uses only the common settings (vlans)
-
-  device_data = { 
+  # 1. Filter out the "common_settings" metadata block.
+  # This creates a map of actual switches only, preventing Terraform 
+  # from trying to configure a "switch" named "common_settings".
+  device_list = { 
     for k, v in local.raw_yaml : k => v 
     if k != "common_settings" 
   }
 
-# 2. Flatten: Create a map entry for every VLAN on every device
+  # 2. Flattening Logic:
+  # Since 'for_each' can only loop over a single-level map, we must 
+  # transform the nested structure (Switch -> VLANs) into a flat map.
   device_vlans = merge([
-    for device_key, device_val in local.device_data: {
-      for vlan_id, vlan_val in local.raw_yaml.common_settings.vlans :
+    for device_key, device_val in local.device_list : {
+    # Iterate over the 'vlans' map inherited by each switch via the YAML alias (*)    
+      for vlan_id, vlan_val in device_val.vlans :
+      # Generate a unique key for every port on every switch (e.g., "twe-agg01.130")
       "${device_key}.${vlan_id}" => {
-        device       = device_key
-        vlan_id      = try(vlan_id, "enabled") # This is a workaround to handle the case where vlan_id might not be present in the YAML")
-        name         = try(vlan_val.name, "DEFAULT")
-        fabric_encap = try(vlan_val.fabric_encap, 999)
-        #bfd_admin_state = try(local.raw_yaml.common_settings.features.bfd.admin_state, "disabled")
+        device_name  = device_key
+        vlan_id      = vlan_id
+        vlan_name    = vlan_val.name
+        fabric_encap = vlan_val.fabric_encap
       }
     }
-  ]...) # The '...' is important to merge the list of maps into one map
-
-  
+  ]...) # The '...' expansion operator merges the list of maps into one single map
 }
 
 provider "nxos" {
   username = "cisco"
   password = "cisco"
-  devices  = concat(local.leafs)
+
+  # List of target devices. The 'name' here must match the 'device' 
+  # attribute used in the resources below.
+  devices = [
+    { name = "twe-agg01", url = "https://192.168.1.87" },
+    { name = "twe-agg02", url = "https://192.168.1.190" }
+  ]
 }
 
-##### VRF Config
+# Dynamic resource creation for Bridge Domains (VLANs)
+resource "nxos_bridge_domain" "dynamic_vlans" {
+  # Create one Bridge Domain for every entry in our flattened 'device_vlans' map
+  for_each = local.device_vlans
 
-##### Add the vlan using the provider. Note I do not see how to add a vlan name?
-##### Adding each vlan seperatley as unsure how to loop through the map of vlan in the vlans.yaml file. This is a workaround to get the VRF created and then we can add the interfaces to it in the Eth_Int module.
+  # Directs the configuration to the specific switch (e.g., "twe-agg01")
+  device = each.value.device_name
 
-resource "nxos_bridge_domain" "bd-vlan3010" {
-  for_each = local.device_data
-  device = each.key 
-  #svi_autostate = "disable"
+  # Define the Bridge Domain setting
   bridge_domains = {
-    "vlan-3010" = {
-      #access_encap        = "unknown"
-      name                = "vlan-3010"
-      #bridge_domain_state = "suspend"
-      #admin_state         = "active"
-      #bridge_mode         = "mac"
-      #control             = "untagged"
-      #forwarding_control  = "mdst-flood"
-      #forwarding_mode     = "bridge"
-      #long_name           = false
-      #mac_packet_classify = "enable"
-      #mode                = "CE"
-      #vrf_name            = "default"
-      #cross_connect       = "disable"
+    "vlan-${each.value.vlan_id}" = {
+      name = each.value.vlan_name
     }
-    "vlan-3020" = {
-      name                = "vlan-3020"
-    }
-    "vlan-3030" = {
-      name                = "vlan-3030"
-    }
-    "vlan-3060" = {
-      name                = "vlan-3060"
-    }
-  
-
   }
 }
 
-
-
-##### OUTPUT Module - will be used to return output to Root #####
+##### TLDR #####
+#
+# What this code achieves:
+#
+# Scalability: If you add a new VLAN to the common_settings in your YAML, 
+#    Terraform will automatically create it on both switches.
+#
+# Traceability: Every resource is indexed in your state file by a readable 
+#    name like dynamic_vlans["twe-agg01.130"].
+#
+# Separation of Concerns: The provider handles the connection, 
+#    the locals handle the data transformation, and the resource handles the intent.
