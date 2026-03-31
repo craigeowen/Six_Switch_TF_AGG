@@ -1,0 +1,110 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+  managed: true
+  username: cisco
+  password: cisco
+  provide_url_agg01: "https://192.168.1.87"
+  provide_url_agg02: "https://192.168.1.190"
+  
+  ##### VRF's#####
+
+  # vrfs:
+  #   "xx01-yy-core":
+  #     name: "xx01-yy-core"
+  #     description: "VRF for yy Core"
+  #   "xx02-yy-core":
+  #     name: "xx02-yy-core"
+  #     description: "VRF for yy Core"   
+  #   "xx03-yy-core":
+  #     name: "xx03-yy-core"
+  #     description: "VRF for yy Core" 
+  #   "xx06-yy-core":
+  #     name: "xx06-yy-core"
+  #     description: "VRF for yy Core" 
+  #   "vpc":
+  #     name: "vpc"
+  #     description: "VRF for vpc" 
+  ##### End of VRFs #####
+
+  features:
+#states are enabled or disabled
+    bgp : enabled
+    bfd : enabled
+    hsrp : disabled
+    interface_vlan : enabled
+    lacp : enabled
+    lldp : disabled
+    macsec : disabled
+    tacacs : disabled
+    vpc : enabled
+    
+  # Define the Features setting
+ 
+
+
+# 2. Reference the common settings using an Alias (*)
+twe-agg01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "TWE-AGG01"          # NOTE this is in UPPERCASE as it is applied to the switch hostname
+  url: "https://192.168.1.87"
+
+
+twe-agg02:
+  <<: *common                # Same here
+  name: "TWE-AGG02"          # NOTE this is in UPPERCASE as it is applied to the switch hostname
+  url: "https://192.168.1.190"
+
+# 3. You can also override specific values
+# twe-sat03:
+#   <<: *common
+#   name: "twe-sat03"
+#   url: "https://192.168.1.155"
+#   vrf2_name: "SPECIAL_VRF"   # This overrides the common "VRF2" value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -42,17 +42,17 @@ locals {
 
 #
 
-  # 3. Flatten: Create a map entry for every VRF on every device
-  device_vrfs = merge([
-    for device_key, device_val in local.device_data: {
-      for vrf_id, vrf_val in local.raw_yaml.common_settings.vrfs :
-      "${device_key}.${vrf_id}" => {
-        device       = device_key
-        name         = vrf_val.name
-        description  = vrf_val.description
-      }
-    }
-  ]...) # The '...' is important to merge the list of maps into one map
+  # # 3. Flatten: Create a map entry for every VRF on every device
+  # device_vrfs = merge([
+  #   for device_key, device_val in local.device_data: {
+  #     for vrf_id, vrf_val in local.raw_yaml.common_settings.vrfs :
+  #     "${device_key}.${vrf_id}" => {
+  #       device       = device_key
+  #       name         = vrf_val.name
+  #       description  = vrf_val.description
+  #     }
+  #   }
+  # ]...) # The '...' is important to merge the list of maps into one map
 
 ###### Extract the commn.yaml data into a separate local variable for easier reference in the module
   #raw_vlans_yaml = yamldecode(file("./vlans.yaml")) 
@@ -90,7 +90,7 @@ resource "nxos_system" "hostname" {
 
 ##### VRF Config
 
-##### Add the vrf using the rest apiu as provider method does not work!
+##### Add the vrf using the rest api as provider method does not work!
 ##### Adding each vrf seperatley as unsure how to loop through the map of vrfs in the common.yaml file. This is a workaround to get the VRF created and then we can add the interfaces to it in the Eth_Int module.
 resource "nxos_dme" "l3Inst-xx01" {
   for_each = local.device_data
@@ -163,11 +163,11 @@ resource "nxos_save_config" "save-config" {
 ##### Configure  modules #####
 
 ### Base
-module "config-base" {
-  source = "./modules/base"
-  #device_features = local.device_features
-  #device_vrfs = local.device_vrfs
-}
+# module "config-base" {
+#   source = "./modules/base"
+#   #device_features = local.device_features
+#   #device_vrfs = local.device_vrfs
+# }
 
 ### Vlans
 module "config-common-vlans" {
@@ -198,6 +198,13 @@ module "config-VPC" {
 ### BGP
 module "config-BGP" {
   source = "./modules/routing"
+}
+
+### system
+module "config-system" {
+  source = "./modules/system"
+  # Read the file here, where the path is simple and clear
+  system_config = yamldecode(file("${path.root}/modules/yaml_configs/system.yaml"))
 }
 
 ####################################################

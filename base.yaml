@@ -24,19 +24,19 @@ common_settings: &common
     "vpc":
       name: "vpc"
       description: "VRF for vpc" 
-  ##### End of VRFs #####
+#   ##### End of VRFs #####
 
-  features:
-#states are enabled or disabled
-    bgp : enabled
-    bfd : enabled
-    hsrp : disabled
-    interface_vlan : enabled
-    lacp : enabled
-    lldp : disabled
-    macsec : disabled
-    tacacs : disabled
-    vpc : enabled
+#   features:
+# #states are enabled or disabled
+#     bgp : enabled
+#     bfd : enabled
+#     hsrp : disabled
+#     interface_vlan : enabled
+#     lacp : enabled
+#     lldp : disabled
+#     macsec : disabled
+#     tacacs : disabled
+#     vpc : enabled
     
   # Define the Features setting
  
@@ -53,87 +53,4 @@ twe-agg02:
   <<: *common                # Same here
   name: "TWE-AGG02"          # NOTE this is in UPPERCASE as it is applied to the switch hostname
   url: "https://192.168.1.190"
-
-# 3. You can also override specific values
-# twe-sat03:
-#   <<: *common
-#   name: "twe-sat03"
-#   url: "https://192.168.1.155"
-#   vrf2_name: "SPECIAL_VRF"   # This overrides the common "VRF2" value
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# twe-sat01:
-#   name: "twe-sat01"
-#   url: "https://192.168.1.166"
-#   vrf2_name: "VRF2"
-#   vrf2_description: "My VRF2 Description"
-    
-# twe-sat02:
-#   name: "twe-sat02"
-#   url: "https://192.168.1.144"
-#   vrf2_name: "VRF2"
-#   vrf2_description: "My VRF2 Description"
 
