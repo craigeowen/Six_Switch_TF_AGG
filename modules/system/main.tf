@@ -103,10 +103,6 @@ resource "nxos_ntp" "example" {
       vrf       = "management"
       type      = "server"
     }
-  # "4.3.2.1" = {
-  #   vrf       = "management"
-  #   type      = "server"
-  #   }
   }
 }
 

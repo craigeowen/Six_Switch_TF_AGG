@@ -88,64 +88,6 @@ resource "nxos_system" "hostname" {
 ##### A data block
 ##### An output block whcih hold the output
 
-##### VRF Config
-
-##### Add the vrf using the rest api as provider method does not work!
-##### Adding each vrf seperatley as unsure how to loop through the map of vrfs in the common.yaml file. This is a workaround to get the VRF created and then we can add the interfaces to it in the Eth_Int module.
-resource "nxos_dme" "l3Inst-xx01" {
-  for_each = local.device_data
-  device = each.key  
-  dn         = "sys/inst-[xx01-xx-core]"
-  class_name = "l3Inst"
-  content = {
-    name  = "xx01-xx-core"
-    descr = "VRF for xx01-xx-core"
-  }
-}
-resource "nxos_dme" "l3Inst-xx02" {
-  for_each = local.device_data
-  device = each.key  
-  dn         = "sys/inst-[xx02-xx-core]"
-  class_name = "l3Inst"
-  content = {
-    name  = "xx02-xx-core"
-    descr = "VRF for xx02-xx-core"
-  }
-}
-resource "nxos_dme" "l3Inst-xx03" {
-  for_each = local.device_data
-  device = each.key  
-  dn         = "sys/inst-[xx03-xx-core]"
-  class_name = "l3Inst"
-  content = {
-    name  = "xx03-xx-core"
-    descr = "VRF for xx03-xx-core"
-  }
-}
-resource "nxos_dme" "l3Inst-xx06" {
-  for_each = local.device_data
-  device = each.key  
-  dn         = "sys/inst-[xx06-xx-core]"
-  class_name = "l3Inst"
-  content = {
-    name  = "xx06-xx-core"
-    descr = "VRF for xx06-xx-core"
-  }
-}
-resource "nxos_dme" "l3Inst-vpc" {
-  for_each = local.device_data
-  device = each.key  
-  dn         = "sys/inst-[vpc]"
-  class_name = "l3Inst"
-  content = {
-    name  = "vpc"
-    descr = "VRF for vpc"
-  }
-}
-
-
-##### End of VRF Config
-
 
 ##### This is usewd for returned OUTPUT from Modules #####
 
