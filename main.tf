@@ -142,6 +142,11 @@ module "config-BGP" {
   source = "./modules/routing"
 }
 
+### interface
+ module "config-interface" {
+   source = "./modules/interface"
+ }
+
 ### Switching
 module "config-Switching" {
   source = "./modules/switching"

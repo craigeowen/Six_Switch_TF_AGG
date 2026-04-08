@@ -306,18 +306,18 @@ resource "nxos_port_channel_interface" "po-agg02" {
 
 ##### Loopback Interfaces #####
 
-resource "nxos_loopback_interface" "lo101" {
-  for_each = local.device_data
-  device = each.key   
-  loopback_interfaces = {
-    "lo101" = {
-      admin_state  = "up"
-      description  = "### XX01-Loopback ###"
-      #link_logging = "enable"
-      vrf_dn       = "sys/inst-xx01-xx-core"
-    }
-  }
-}
+# resource "nxos_loopback_interface" "lo101" {
+#   for_each = local.device_data
+#   device = each.key   
+#   loopback_interfaces = {
+#     "lo101" = {
+#       admin_state  = "up"
+#       description  = "### XX01-Loopback ###"
+#       #link_logging = "enable"
+#       vrf_dn       = "sys/inst-xx01-xx-core"
+#     }
+#   }
+# }
 
 
 ##### End of Loopback Interfaces #####

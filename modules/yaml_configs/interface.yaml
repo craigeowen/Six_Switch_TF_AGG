@@ -1,0 +1,47 @@
+# 1. Define the common settings using an Anchor (&)
+common_settings: &common
+#This is the list of vlans to apply. Add to this list for new vlans
+  loopback_interfaces:
+    # "lo101":
+    #   admin_state : "up"
+    #   description : "Loopback 101"
+    #   vrf_dn: "sys/inst-xx01-xx-core"
+    "lo102":
+      admin_state : "up"
+      description : "Loopback 102"
+      vrf_dn: "sys/inst-xx02-xx-core"
+    "lo103":
+      admin_state : "up"
+      description : "Loopback 103"
+      vrf_dn: "sys/inst-xx03-xx-core"
+    "lo106":
+      admin_state : "up"
+      description : "Loopback 106"
+      vrf_dn: "sys/inst-xx06-xx-core"
+
+
+
+
+
+
+#######################################################################
+##### The below config applies the variables above to the switches#####
+                        #######################
+                        #####DO NOT CHANGE#####
+                        #######################
+#######################################################################
+
+# 2. Reference the common settings using an Alias (*)
+twe-agg01:
+  <<: *common                # This "pulls in" everything from common_settings
+  name: "twe-agg01"
+  url: "https://192.168.1.87"
+  keepalive_destination_ip : "1.1.1.1"
+  keepalive_source_ip      : "1.1.1.2"
+
+twe-agg02:
+  <<: *common                # Same here
+  name: "twe-agg02"
+  url: "https://192.168.1.190"
+  keepalive_destination_ip : "1.1.1.2"
+  keepalive_source_ip      : "1.1.1.1"
