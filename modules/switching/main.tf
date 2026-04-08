@@ -21,7 +21,8 @@ locals {
     if k != "common_settings" 
   }
 
-  # 2. Flattening Logic:
+  # 2. Resource - VLAN
+  #Flattening Logic:
   # Since 'for_each' can only loop over a single-level map, we must 
   # transform the nested structure (Switch -> VLANs) into a flat map.
   device_vlans = merge([
@@ -38,7 +39,8 @@ locals {
     }
   ]...) # The '...' expansion operator merges the list of maps into one single map
 
-  # 3. Flattening Logic:
+  # 3. Resource - VPC
+  #Flattening Logic:
   # Since 'for_each' can only loop over a single-level map, we must 
   # transform the nested structure (Switch -> vpc) into a flat map.
   device_vpc = {
@@ -60,6 +62,35 @@ locals {
     }
   }
 
+# 4a. Resource - Spanning_Tree
+  #Flattening Logic:
+  # Since 'for_each' can only loop over a single-level map, we must 
+  # transform the nested structure (Switch -> stp) into a flat map.
+  device_stp = {
+    for device_key, device_val in local.device_list : device_key => {
+      device_name    = device_key
+      # Use try() to look into the features map, defaulting to null if not present
+      admin_state              = try(device_val.stp.admin_state, null)
+    }
+  }
+
+#4b. Resource - Spanning_Tree_Interfaces
+ #Flattening Logic:
+  # Since 'for_each' can only loop over a single-level map, we must 
+  # transform the nested structure (Switch -> stp_int) into a flat map.
+  device_stp_int = merge([
+    for device_key, device_val in local.device_list : {
+    # Iterate over the 'vlans' map inherited by each switch via the YAML alias (*)    
+      for stp_int_id, stp_int_val in device_val.stp_int :
+      # Generate a unique key for every port on every switch (e.g., "twe-agg01.130")
+      "${device_key}.${stp_int_id}" => {
+        device_name  = device_key
+        stp_int_id   = stp_int_id
+        bpdu_guard   = stp_int_val.bpdu_guard
+        mode         = stp_int_val.mode
+      }
+    }
+  ]...) # The '...' expansion operator merges the list of maps into one single map
 }
 
 provider "nxos" {
@@ -134,6 +165,53 @@ resource "nxos_dme" "Configure-vpc-dom-arp" {
     "status": "created,modified"
   }
 }
+
+resource "nxos_spanning_tree" "stp" {
+  for_each = local.device_vpc
+  device = each.value.device_name
+  admin_state                = "${each.value.admin_state}"
+  # instance_admin_state     = "enabled"
+  # bridge_assurance         = "disabled"
+  # control                  = "normal,stateful-ha"
+  # fcoe                     = "enabled"
+  # l2_gateway_stp_domain_id = 2048
+  # linecard_issu            = "auto"
+  # loopguard                = "enabled"
+  # mode                     = "mst"
+  # pathcost_option          = "long"
+  # interfaces = {
+  #   "eth1/9" = {
+  #     bpdu_filter               = "enable"
+  #     bpdu_guard                = "enable"
+  #     cost                      = 100
+  #     guard                     = "root"
+  #     link_type                 = "p2p"
+  #     mode                      = "edge"
+  #     priority                  = 200
+  #     control                   = "bpdu-guard"
+  #     description               = "My interface description"
+  #     linecard_issu             = "auto"
+  #     prestandard_configuration = "enabled"
+  #     simulate_pvst             = "enabled"
+  #   }
+  # }
+}
+
+resource "nxos_spanning_tree" "stp_int" {
+  for_each = local.device_stp_int
+
+  # Directs the configuration to the specific switch (e.g., "twe-agg01")
+  device = each.value.device_name
+
+  # Define the Bridge Domain setting
+  interfaces = {
+    "${each.value.stp_int_id}" = {
+      bpdu_guard = each.value.bpdu_guard
+      mode       = each.value.mode
+    }
+  }
+}
+
 
 ##### TLDR #####
 #

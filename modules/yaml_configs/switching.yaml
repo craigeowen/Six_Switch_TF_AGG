@@ -36,6 +36,16 @@ common_settings: &common
     auto_recovery_interval: 60
     peerlink_interface_id: "po1"  
 
+  stp:
+    admin_state: "enabled"
+
+  stp_int:
+    "eth1/7":
+      bpdu_guard: "enable"
+      mode: "network"
+    "eth1/8":
+      bpdu_guard: "enable"
+      mode: "network"
 
 
 
